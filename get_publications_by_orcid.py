@@ -2,7 +2,7 @@ import requests
 import yaml
 
 # Your ORCID ID
-orcid_id = "0009-0000-7683-5299"
+orcid_id = "0000-0001-6589-1287"
 # ORCID API endpoint for public data
 
 # Set headers for the API request
@@ -26,17 +26,23 @@ def fetch_publications(orcid_id):
         for work_group in works:
             work_summary = work_group.get("work-summary", [])
             for summary in work_summary:
+                if not summary:
+                    continue
+
                 # Fetch title
                 title = (
                     summary.get("title", {}).get("title", {}).get("value", "No Title")
                 )
 
                 # Fetch publication year
-                pub_year = (
-                    summary.get("publication-date", {})
-                    .get("year", {})
-                    .get("value", "No Year")
-                )
+                try:
+                    pub_year = (
+                        summary.get("publication-date", {})
+                        .get("year", {})
+                        .get("value", "No Year")
+                    )
+                except AttributeError:
+                    pub_year = "No Year"
 
                 # Fetch external identifiers (e.g., DOI)
                 external_ids = summary.get("external-ids", {}).get("external-id", [])
@@ -55,7 +61,7 @@ def fetch_publications(orcid_id):
                 contributors = fetch_contributors(detailed_url)
 
                 publications.append({
-                    "title": title,
+                    "name": title,
                     "publication_year": pub_year,
                     "identifiers": identifiers,
                     "authors": contributors,
@@ -87,7 +93,7 @@ def fetch_contributors(work_path):
         ]
         return author_list
 
-    except requests.RequestException as e:
+    except (requests.RequestException, AttributeError) as e:
         print(f"An error occurred while fetching contributors: {e}")
         return []
 

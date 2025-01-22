@@ -4,6 +4,7 @@ import os
 
 # Your ORCID ID
 orcid_id = os.envrion.get("ORCID_ENVAR")
+print("The ORCID is", orcid_id)
 # ORCID API endpoint for public data
 
 # Set headers for the API request
